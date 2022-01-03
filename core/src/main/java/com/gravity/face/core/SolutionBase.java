@@ -20,8 +20,8 @@ public abstract class SolutionBase<T, U> {
     //Tensorflow lite interpreter;
     private Interpreter interpreter;
     //Listeners
-    protected ResultListener<U> resultListener;
-    protected ErrorListener errorListener;
+    private ResultListener<U> resultListener;
+    private ErrorListener errorListener;
 
     protected SolutionBase(@NonNull Context context) {
         try {
@@ -70,7 +70,12 @@ public abstract class SolutionBase<T, U> {
         }
     }
 
-    private void sendError(Exception e) {
+    protected void sendResult(U result) {
+        if (this.resultListener != null)
+            this.resultListener.run(result);
+    }
+
+    protected void sendError(Exception e) {
         if (this.errorListener != null)
             this.errorListener.onError(e);
     }

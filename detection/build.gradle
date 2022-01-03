@@ -30,7 +30,10 @@ android {
 }
 
 dependencies {
-    implementation project(':detection')
+    implementation project(path: ':core')
+
+    implementation "org.tensorflow:tensorflow-lite:${tensorflowLite}"
+    implementation "org.tensorflow:tensorflow-lite-support:${tensorflowLiteSupport}"
 
     testImplementation "junit:junit:${junit}"
     androidTestImplementation "androidx.test.ext:junit:${extJunit}"
