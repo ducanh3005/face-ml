@@ -1,5 +1,7 @@
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
+    id "digital.wup.android-maven-publish" version "3.6.2"
 }
 
 apply from: 'dependencies.gradle'
@@ -10,8 +12,8 @@ android {
     defaultConfig {
         minSdk project.minSdk
         targetSdk project.targetSdk
-        versionCode 1
-        versionName "1.0"
+        versionCode buildVersionCode(core_version)
+        versionName core_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -35,4 +37,33 @@ dependencies {
     testImplementation "junit:junit:${junit}"
     androidTestImplementation "androidx.test.ext:junit:${extJunit}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${espressoCore}"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom {
+                name = 'Core'
+                description = 'Core Module Solution For Android From Mediapipe'
+                url = 'https://github.com/shayantabatabaee/Face-ML'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Shayan Tabatabaee'
+                        email = 'shayan.ta69@gmail.com'
+                    }
+                }
+            }
+            groupId 'com.gravity.face'
+            version core_version
+            artifactId = "$project.name"
+            artifact("$buildDir/outputs/aar/$project.name-release.aar")
+            from components.android
+        }
+    }
 }

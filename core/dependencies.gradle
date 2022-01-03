@@ -1,5 +1,5 @@
 ext {
-    tensorflowLite = '2.0.0'
+    tensorflowLite = '2.7.0'
     tensorflowLiteSupport = '0.3.1'
     junit = '4.+'
     extJunit = '1.1.3'
