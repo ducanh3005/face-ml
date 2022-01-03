@@ -10,6 +10,7 @@ import com.gravity.face.detection.models.Anchor;
 import com.gravity.face.detection.models.AnchorOptions;
 import com.gravity.face.detection.models.Face;
 import com.gravity.face.detection.models.FaceDetectionOptions;
+import com.gravity.face.detection.models.FaceDetectionResult;
 import com.gravity.face.detection.models.TensorToFacesOptions;
 import com.gravity.face.detection.utils.AnchorGenerator;
 import com.gravity.face.detection.utils.TensorToFaces;
@@ -24,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class FaceDetection extends SolutionBase<Bitmap, List<Face>> {
+public final class FaceDetection extends SolutionBase<Bitmap, FaceDetectionResult> {
 
     //Model name in assets folder
     private static final String MODEL_PATH = "face_detection_short_range.tflite";
@@ -65,14 +66,14 @@ public final class FaceDetection extends SolutionBase<Bitmap, List<Face>> {
     public void detect(@NonNull Bitmap bitmap) {
         synchronized (this) {
             super.interpret(bitmap);
-            List<Face> result = this.tensorToFaces.process(
+            List<Face> faces = this.tensorToFaces.process(
                     new Size(bitmap.getWidth(),
                             bitmap.getHeight()),
                     this.detectionsOption,
                     this.classificationOutput,
                     this.regressionOutput,
                     this.anchors);
-            this.sendResult(result);
+            this.sendResult(new FaceDetectionResult(faces, bitmap));
         }
     }
 
