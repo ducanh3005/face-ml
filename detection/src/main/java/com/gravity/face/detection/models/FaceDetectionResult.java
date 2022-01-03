@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
-public class FaceDetectionResult {
+public final class FaceDetectionResult {
     private final List<Face> faces;
     private final Bitmap inputBitmap;
 
