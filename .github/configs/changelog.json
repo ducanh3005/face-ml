@@ -1,22 +1,8 @@
 {
   "for_more_info_on_this_file": "https://github.com/mikepenz/release-changelog-builder-action/blob/develop/src/configuration.ts",
-  "categories": [
-    {
-      "title": "## 🚀 Features",
-      "labels": ["feature"]
-    },
-    {
-      "title": "## 🐛 Buges",
-      "labels": ["bug"]
-    },
-    {
-      "title": "## 🧪 Tests",
-      "labels": ["test"]
-    }
-  ],
-  "sort": "ASC",
-  "template": "${{CHANGELOG}}\n\n<details>\n<summary>Uncategorized</summary>\n\n${{UNCATEGORIZED}}\n</details>",
-  "pr_template": "- ${{TITLE}}\n   - PR: #${{NUMBER}}",
+  "sort": "DESC",
+  "template": "<details>\n<summary>Change log:</summary>\n\n${{UNCATEGORIZED}}\n</details>",
+  "pr_template": "- ${{TITLE}}\n ",
   "empty_template": "- no changes",
   "max_tags_to_fetch": 200,
   "max_pull_requests": 200,
