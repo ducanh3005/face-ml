@@ -12,8 +12,8 @@ android {
     defaultConfig {
         minSdk project.minSdk
         targetSdk project.targetSdk
-        versionCode buildVersionCode(detection_version)
-        versionName detection_version
+        versionCode buildVersionCode(release_version)
+        versionName release_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -63,7 +63,7 @@ publishing {
                 }
             }
             groupId 'com.gravity.face'
-            version detection_version
+            version release_version
             artifactId = "$project.name"
             artifact("$buildDir/outputs/aar/$project.name-release.aar")
             from components.android
