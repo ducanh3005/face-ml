@@ -32,10 +32,7 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':core')
-
-    compileOnly "org.tensorflow:tensorflow-lite:${tensorflowLite}"
-    compileOnly "org.tensorflow:tensorflow-lite-support:${tensorflowLiteSupport}"
+    compileOnly project(path: ':core')
 
     testImplementation "junit:junit:${junit}"
     androidTestImplementation "androidx.test.ext:junit:${extJunit}"
