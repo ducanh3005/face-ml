@@ -20,7 +20,7 @@ public final class FaceDetectionOptions {
 
     public final static class Builder {
         private float minConfidence = 0.5f;
-        private int maxNumberOfFaces = 1;
+        private int maxNumberOfFaces = -1;
 
         public Builder() {
         }
@@ -42,8 +42,8 @@ public final class FaceDetectionOptions {
         }
 
         private static void validate(FaceDetectionOptions options) {
-            if (options.getMaxNumberOfFaces() <= 0) {
-                throw new IllegalArgumentException("MaxNumberOfFaces must greater than 0, maxNumberOfFaces: " + options.getMaxNumberOfFaces());
+            if (options.getMaxNumberOfFaces() == 0 || options.getMaxNumberOfFaces() < -1) {
+                throw new IllegalArgumentException("MaxNumberOfFaces must be greater than 0 or -1, maxNumberOfFaces: " + options.getMaxNumberOfFaces());
             }
             if (options.getMinConfidence() < 0 || options.getMinConfidence() > 1) {
                 throw new IllegalArgumentException("MinConfidence must be between 0 and 1");

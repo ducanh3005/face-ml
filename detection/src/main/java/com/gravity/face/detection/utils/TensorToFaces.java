@@ -20,8 +20,8 @@ public final class TensorToFaces {
             throw new IllegalArgumentException("RawBoxes dimensions is not correct");
         if (rawScores.length != 1 || rawScores[0].length != options.getNumBoxes() || rawScores[0][0].length != options.getNumClasses())
             throw new IllegalArgumentException("RawScores dimensions is not correct");
-        if (options.getMaxNumberOfFaces() <= 0)
-            throw new IllegalArgumentException("MaxNumberOfFaces must be greater than zero");
+        if (options.getMaxNumberOfFaces() == 0 || options.getMaxNumberOfFaces() < -1)
+            throw new IllegalArgumentException("MaxNumberOfFaces must be greater than 0 or -1");
 
         List<Float> detectionScores = new ArrayList<>(options.getNumBoxes());
 
@@ -42,7 +42,8 @@ public final class TensorToFaces {
 
         List<Face> faces = this.convertToFaces(options, rawBoxes, detectionScores, anchors);
         faces = this.nonMaxSuppression(faces, options.getIouThreshold());
-        faces = this.getFacesWithHigherScore(faces, options.getMaxNumberOfFaces());
+        if (options.getMaxNumberOfFaces() != -1)
+            faces = this.getFacesWithHigherScore(faces, options.getMaxNumberOfFaces());
         faces = this.projectCoordinate(faces, imageSize);
         return faces;
     }
