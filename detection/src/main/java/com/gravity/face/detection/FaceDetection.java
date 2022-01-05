@@ -13,6 +13,7 @@ import com.gravity.face.detection.models.FaceDetectionOptions;
 import com.gravity.face.detection.models.FaceDetectionResult;
 import com.gravity.face.detection.models.TensorToFacesOptions;
 import com.gravity.face.detection.utils.AnchorGenerator;
+import com.gravity.face.core.utils.LimitedSizeQueue;
 import com.gravity.face.detection.utils.TensorToFaces;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -24,11 +25,14 @@ import org.tensorflow.lite.support.image.TensorImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-public final class FaceDetection extends SolutionBase<Bitmap, FaceDetectionResult> {
+public final class FaceDetection extends SolutionBase<Bitmap, FaceDetectionResult> implements Runnable {
 
     //Model name in assets folder
     private static final String MODEL_PATH = "face_detection_short_range.tflite";
+    //Queue Size
+    private static final int QUEUE_SIZE = 10;
     //Model input image characteristics
     private static final int IMAGE_WIDTH = 128;
     private static final int IMAGE_HEIGHT = 128;
@@ -45,6 +49,7 @@ public final class FaceDetection extends SolutionBase<Bitmap, FaceDetectionResul
     private final List<Anchor> anchors;
     private final TensorToFacesOptions detectionsOption;
     private final TensorToFaces tensorToFaces;
+    private final LimitedSizeQueue<Bitmap> queue;
 
     public FaceDetection(Context context, FaceDetectionOptions options) {
         super(context);
@@ -61,19 +66,40 @@ public final class FaceDetection extends SolutionBase<Bitmap, FaceDetectionResul
 
         int[] classificationOutputShape = getOutputTensorShape(1);
         this.classificationOutput = new float[classificationOutputShape[0]][classificationOutputShape[1]][classificationOutputShape[2]];
+
+        this.queue = new LimitedSizeQueue<>(QUEUE_SIZE);
+        new Thread(this).start();
     }
 
     public void detect(@NonNull Bitmap bitmap) {
-        synchronized (this) {
-            super.interpret(bitmap);
-            List<Face> faces = this.tensorToFaces.process(
-                    new Size(bitmap.getWidth(),
-                            bitmap.getHeight()),
-                    this.detectionsOption,
-                    this.classificationOutput,
-                    this.regressionOutput,
-                    this.anchors);
-            this.sendResult(new FaceDetectionResult(faces, bitmap));
+        try {
+            this.queue.add(Objects.requireNonNull(bitmap));
+        } catch (NullPointerException e) {
+            super.sendError(e);
+        }
+    }
+
+    @Override
+    public void run() {
+        while (!super.isClosed()) {
+            Bitmap bitmap = this.queue.poll();
+            if (bitmap != null) {
+                super.interpret(bitmap);
+                List<Face> faces = this.tensorToFaces.process(
+                        new Size(bitmap.getWidth(),
+                                bitmap.getHeight()),
+                        this.detectionsOption,
+                        this.classificationOutput,
+                        this.regressionOutput,
+                        this.anchors);
+                this.sendResult(new FaceDetectionResult(faces, bitmap));
+            } else {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    super.close();
+                }
+            }
         }
     }
 
@@ -85,7 +111,7 @@ public final class FaceDetection extends SolutionBase<Bitmap, FaceDetectionResul
     @Override
     protected Interpreter.Options getInterpreterOptions() {
         Interpreter.Options options = new Interpreter.Options();
-        options.setNumThreads(4);
+        options.setNumThreads(-1);
         options.setUseXNNPACK(true);
         options.setCancellable(true);
         return options;

@@ -47,6 +47,9 @@ public abstract class SolutionBase<T, U> {
             Object[] inputs = this.getInputs(Objects.requireNonNull(input));
             Map<Integer, Object> outputs = this.getOutputs();
             this.interpreter.runForMultipleInputsOutputs(inputs, outputs);
+        } catch (IllegalStateException e) {
+            this.close();
+            this.sendError(e);
         } catch (Exception e) {
             this.sendError(e);
         }
@@ -58,9 +61,14 @@ public abstract class SolutionBase<T, U> {
             this.checkNotClose();
             return this.interpreter.getOutputTensor(index).shape();
         } catch (IllegalStateException e) {
+            this.close();
             this.sendError(e);
             return null;
         }
+    }
+
+    protected boolean isClosed() {
+        return this.interpreter == null;
     }
 
     public final void close() {
