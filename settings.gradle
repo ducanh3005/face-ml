@@ -1,3 +1,4 @@
 rootProject.name = "Face-ML"
 include ':core'
 include ':detection'
+include ':landmark'

@@ -45,13 +45,13 @@ project.afterEvaluate {
             library(MavenPublication) {
                 setGroupId 'com.gravity.face'
                 //You can either define these here or get them from project conf elsewhere
-                setArtifactId 'detection'
+                setArtifactId 'landmark'
                 version android.defaultConfig.versionName
                 artifact bundleReleaseAar //aar artifact you want to publish
 
                 pom.withXml {
-                    asNode().appendNode('name', 'Detection')
-                    asNode().appendNode('description', 'Face Detection Module Solution For Android From Mediapipe')
+                    asNode().appendNode('name', 'Landmark')
+                    asNode().appendNode('description', 'Face Landmark Module Solution For Android From Mediapipe')
                     asNode().appendNode('url', 'https://github.com/shayantabatabaee/Face-ML')
                     def licence = asNode().appendNode('licenses').appendNode('license')
                     licence.appendNode('name', 'The Apache License, Version 2.0')
