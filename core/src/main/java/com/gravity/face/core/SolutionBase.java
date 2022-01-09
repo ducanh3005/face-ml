@@ -71,7 +71,7 @@ public abstract class SolutionBase<T, U> {
         return this.interpreter == null;
     }
 
-    public final void close() {
+    public void close() {
         if (this.interpreter != null) {
             this.interpreter = null;
         }

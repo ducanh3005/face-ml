@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.util.Size;
 
 import com.gravity.face.core.SolutionBase;
-import com.gravity.face.core.utils.ImageProcessorUtil;
+import com.gravity.face.detection.utils.ImageProcessorUtil;
 import com.gravity.face.detection.models.Anchor;
 import com.gravity.face.detection.models.AnchorOptions;
 import com.gravity.face.detection.models.Face;
@@ -51,11 +51,11 @@ public final class FaceDetection extends SolutionBase<Bitmap, FaceDetectionResul
     private final TensorToFaces tensorToFaces;
     private final LimitedSizeQueue<Bitmap> queue;
 
-    public FaceDetection(Context context, FaceDetectionOptions options) {
+    public FaceDetection(@NonNull Context context,@NonNull FaceDetectionOptions options) {
         super(context);
 
-        this.options = options;
-        this.imageProcessorUtil = new ImageProcessorUtil(IMAGE_MEAN, IMAGE_STD);
+        this.options = Objects.requireNonNull(options);
+        this.imageProcessorUtil = new ImageProcessorUtil(IMAGE_MEAN, IMAGE_STD, IMAGE_WIDTH, IMAGE_HEIGHT);
 
         this.anchors = AnchorGenerator.generate(AnchorOptions.withDefaultValues());
         this.detectionsOption = TensorToFacesOptions.withDefaultValues(this.options.getMinConfidence(), this.options.getMaxNumberOfFaces());
@@ -122,8 +122,7 @@ public final class FaceDetection extends SolutionBase<Bitmap, FaceDetectionResul
         TensorImage image = new TensorImage(DataType.FLOAT32);
         image.load(input);
 
-        ImageProcessor imageProcessor = this.imageProcessorUtil.getImageProcessor(input.getWidth(),
-                input.getHeight(), IMAGE_WIDTH, IMAGE_HEIGHT);
+        ImageProcessor imageProcessor = this.imageProcessorUtil.getImageProcessor(input.getWidth(), input.getHeight());
 
         image = imageProcessor.process(image);
         return new Object[]{image.getBuffer()};

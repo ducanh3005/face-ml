@@ -33,6 +33,7 @@ android {
 
 dependencies {
     compileOnly project(path: ':core')
+    compileOnly project(path: ':detection')
 
     testImplementation "junit:junit:${junit}"
     androidTestImplementation "androidx.test.ext:junit:${extJunit}"

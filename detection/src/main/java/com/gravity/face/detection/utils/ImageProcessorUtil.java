@@ -1,4 +1,4 @@
-package com.gravity.face.core.utils;
+package com.gravity.face.detection.utils;
 
 import org.tensorflow.lite.support.common.ops.NormalizeOp;
 import org.tensorflow.lite.support.image.ImageProcessor;
@@ -9,34 +9,34 @@ public final class ImageProcessorUtil {
 
     private final float mean;
     private final float std;
+    private final int targetWidth;
+    private final int targetHeight;
     private int currentWidth;
     private int currentHeight;
-    private int targetWidth;
-    private int targetHeight;
     private ImageProcessor imageProcessor;
 
-    public ImageProcessorUtil(float mean, float std) {
+    public ImageProcessorUtil(float mean, float std, int targetWidth, int targetHeight) {
         this.mean = mean;
         this.std = std;
+        this.targetWidth = targetWidth;
+        this.targetHeight = targetHeight;
     }
 
-    public synchronized ImageProcessor getImageProcessor(int currentWidth, int currentHeight, int targetWidth, int targetHeight) {
+    public synchronized ImageProcessor getImageProcessor(int currentWidth, int currentHeight) {
         if (this.imageProcessor == null) {
             this.currentWidth = currentWidth;
             this.currentHeight = currentHeight;
-            this.targetWidth = targetWidth;
-            this.targetHeight = targetHeight;
 
             int maxDimension = Math.max(currentWidth, currentHeight);
             this.imageProcessor = new ImageProcessor.Builder().
                     add(new ResizeWithCropOrPadOp(maxDimension, maxDimension)).
-                    add(new ResizeOp(targetHeight, targetWidth, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR)).
+                    add(new ResizeOp(this.targetHeight, this.targetWidth, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR)).
                     add(new NormalizeOp(this.mean, this.std)).
                     build();
         } else {
-            if (this.currentWidth != currentWidth || this.currentHeight != currentHeight || this.targetWidth != targetWidth || this.targetHeight != targetHeight) {
+            if (this.currentWidth != currentWidth || this.currentHeight != currentHeight) {
                 this.imageProcessor = null;
-                this.imageProcessor = this.getImageProcessor(currentWidth, currentHeight, targetWidth, targetHeight);
+                this.imageProcessor = this.getImageProcessor(currentWidth, currentHeight);
             }
         }
         return this.imageProcessor;
