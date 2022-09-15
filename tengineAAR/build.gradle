@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('tengine-kit-sdk1.0.1.aar'))
