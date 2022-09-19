@@ -246,9 +246,9 @@ public class FaceStickerFilter extends BaseFilter {
 
         // 2.2、Sticker attitude angle rotation
         // The pitch angle returned by the key points of the TODO face doesn't seem right? ? The pitch angle value given by the SDK is too small. For example, the actual angle of the pitch when looking up and down is 30 degrees, and the result returned by the SDK is only a dozen degrees. We will see how to optimize it later.
-        float pitchAngle = oneFace.headX;
-        float yawAngle = oneFace.headY;
-        float rollAngle =   (oneFace.headZ + 180f);
+        float pitchAngle = -oneFace.headX * 1.5f;
+        float yawAngle = oneFace.headY * 1.5f;
+        float rollAngle = (oneFace.headZ + 180f);
         // The left and right head turning is limited to no more than 50°, and the deviation caused by the SDK of the key points of the face is destroyed.
         if (Math.abs(yawAngle) > 50) {
             yawAngle = (yawAngle / Math.abs(yawAngle)) * 50;

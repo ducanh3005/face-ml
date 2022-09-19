@@ -216,10 +216,10 @@ public class EGLCamera implements PreviewCallback, Camera.AutoFocusCallback {
 
             // Set the number of faces
         FaceConfig config = new FaceConfig();
-        config.detect = true;
+        config.detect = false;
         config.landmark2d = true;
-        config.attribute = true;
-        config.eyeIris = true;
+        config.attribute = false;
+        config.eyeIris = false;
         config.maxFaceNum = 1;
 
         ImageConfig imageConfig = new ImageConfig();
@@ -237,7 +237,6 @@ public class EGLCamera implements PreviewCallback, Camera.AutoFocusCallback {
         configIs.registered = true;
 
         Face[] faces = TengineKitSdk.getInstance().detectFace(imageConfig, config);
-
 
         LandmarkEngine.getInstance().setOrientation(270);
         LandmarkEngine.getInstance().setNeedFlip(true);
