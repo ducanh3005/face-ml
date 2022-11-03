@@ -15,3 +15,6 @@ dependencyResolutionManagement {
 rootProject.name = "ARFaceSohaSDK"
 include ':app'
 include ':tengineAAR'
+include ':landmark'
+include ':core'
+include ':detection'

@@ -247,8 +247,8 @@ public class EGLCamera implements PreviewCallback, Camera.AutoFocusCallback {
             for (int index = 0; index < faces.length; index++) {
                 // 获取姿态角信息
                 Face face = faces[index];
-                Log.d("DuyHop", "The luoi :" + face.mouthBigOpen );
-                Log.d("DuyHop", "khong the:" + face.mouthClose );
+//                Log.d("Ynsuper", "The luoi :" + face.mouthBigOpen );
+//                Log.d("Ynsuper", "khong the:" + face.mouthClose );
 
                 Face myFace = LandmarkEngine.getInstance().getOneFace(index);
                 myFace.landmark = new float[424];

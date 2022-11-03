@@ -3,14 +3,21 @@ package com.ynsuper.arfacesohasdk.camera;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
+import android.opengl.GLES20;
 import android.opengl.GLES30;
+import android.opengl.GLException;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 
-
+import com.gravity.face.core.ResultListener;
+import com.gravity.face.landmark.FaceMeshDetection;
+import com.gravity.face.landmark.models.FaceMeshOptions;
+import com.gravity.face.landmark.models.FaceMeshResult;
 import com.ynsuper.arfacesohasdk.facefilter.BaseFilter;
 import com.ynsuper.arfacesohasdk.facefilter.CameraFilter;
 import com.ynsuper.arfacesohasdk.facefilter.FacePointsFilter;
@@ -18,6 +25,7 @@ import com.ynsuper.arfacesohasdk.facefilter.FaceStickerFilter;
 import com.ynsuper.arfacesohasdk.util.OpenGLUtils;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -25,15 +33,16 @@ import javax.microedition.khronos.opengles.GL10;
 public class CameraGLSurfaceView extends GLSurfaceView
         implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = "CameraGLSurfaceView";
+    private final FaceMeshDetection faceMeshDetection;
 
     // Whether to display face key points
     public boolean drawFacePoints;
 
     protected float[] cubeVertices = {
             -1.0f, -1.0f,  // 0 bottom left
-            1.0f,  -1.0f,  // 1 bottom right
-            -1.0f,  1.0f,  // 2 top left
-            1.0f,   1.0f,  // 3 top right
+            1.0f, -1.0f,  // 1 bottom right
+            -1.0f, 1.0f,  // 2 top left
+            1.0f, 1.0f,  // 3 top right
     };
 
     protected float[] textureVertices = {
@@ -83,6 +92,14 @@ public class CameraGLSurfaceView extends GLSurfaceView
         mDisplayTextureBuffer = OpenGLUtils.createFloatBuffer(textureVertices);
         mVertexBuffer = OpenGLUtils.createFloatBuffer(cubeVertices);
         mTextureBuffer = OpenGLUtils.createFloatBuffer(textureVertices);
+         faceMeshDetection = new FaceMeshDetection(context,new FaceMeshOptions.Builder().build());
+        faceMeshDetection.setResultListener(new ResultListener<FaceMeshResult>() {
+            @Override
+            public void run(FaceMeshResult result) {
+                // Return 468 points
+                Log.d("Ynsuper","FaceMeshResult size: "+result.getFacesMesh().size());
+            }
+        });
     }
 
     @Override
@@ -151,10 +168,48 @@ public class CameraGLSurfaceView extends GLSurfaceView
         //Draw the texture of stickers
         textureId = stickerFilter.drawFrameBuffer(textureId, mVertexBuffer, mTextureBuffer);
         // Draw to the screen
-        screenFilter.drawFrame(textureId , mDisplayVertexBuffer, mDisplayTextureBuffer);
+        screenFilter.drawFrame(textureId, mDisplayVertexBuffer, mDisplayTextureBuffer);
         if (drawFacePoints) {
             facePointsFilter.drawFrame(textureId, mDisplayVertexBuffer, mDisplayTextureBuffer);
         }
+        // Enable get bitmap and detect by TFlite => return Face Mesh with 468 points
+        Bitmap bitmap = createBitmapFromGLSurface();
+        faceMeshDetection.detect(bitmap);
+    }
+
+
+    public Bitmap createBitmapFromGLSurface() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int h = displayMetrics.heightPixels;
+        int w = displayMetrics.widthPixels;
+
+
+        int bitmapBuffer[] = new int[w * h];
+        int bitmapSource[] = new int[w * h];
+        IntBuffer intBuffer = IntBuffer.wrap(bitmapBuffer);
+        intBuffer.position(0);
+        try {
+
+
+            GLES20.glReadPixels(0, 0, w, h, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, intBuffer);
+            int offset1, offset2;
+            for (int i = 0; i < h; i++) {
+                offset1 = i * w;
+                offset2 = (h - i - 1) * w;
+                for (int j = 0; j < w; j++) {
+                    int texturePixel = bitmapBuffer[offset1 + j];
+                    int blue = (texturePixel >> 16) & 0xff;
+                    int red = (texturePixel << 16) & 0x00ff0000;
+                    int pixel = (texturePixel & 0xff00ff00) | red | blue;
+                    bitmapSource[offset2 + j] = pixel;
+                }
+            }
+        } catch (GLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return Bitmap.createBitmap(bitmapSource, w, h, Bitmap.Config.ARGB_8888);
     }
 
     @Override

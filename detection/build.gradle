@@ -1,0 +1,71 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+    
+}
+
+
+
+android {
+    compileSdk 31
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 31
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+
+dependencies {
+    compileOnly project(path: ':core')
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            library(MavenPublication) {
+                setGroupId 'com.gravity.face'
+                //You can either define these here or get them from project conf elsewhere
+                setArtifactId 'detection'
+                version android.defaultConfig.versionName
+                artifact bundleReleaseAar //aar artifact you want to publish
+
+                pom.withXml {
+                    asNode().appendNode('name', 'Detection')
+                    asNode().appendNode('description', 'Face Detection Module Solution For Android From Mediapipe')
+                    asNode().appendNode('url', 'https://github.com/shayantabatabaee/Face-ML')
+                    def licence = asNode().appendNode('licenses').appendNode('license')
+                    licence.appendNode('name', 'The Apache License, Version 2.0')
+                    licence.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+
+                    def developer = asNode().appendNode('developers').appendNode('developer')
+                    developer.appendNode('name', 'Shayan Tabatabaee')
+                    developer.appendNode('email', 'shayan.ta69@gmail.com')
+
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+}
